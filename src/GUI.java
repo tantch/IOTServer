@@ -1,11 +1,15 @@
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 public class GUI {
 
@@ -47,7 +51,7 @@ public class GUI {
 		thread.start();
 		Object[][] data;
 
-		String[] columnNames = { "Private Network Name", "Number of Users", "Green State", "Red State" };
+		String[] columnNames = { "Private Network Name", "Number of Users", "Red State", "Green State", "Switch" };
 
 		DefaultTableModel dtm = new DefaultTableModel(0, 0);
 		dtm.setColumnIdentifiers(columnNames);
@@ -60,9 +64,9 @@ public class GUI {
 		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
 		table = new JTable(dtm);
-		table.setModel(dtm);
 		scrollPane.setViewportView(table);
 
+		
 		TableWatcher tw = new TableWatcher(dtm, thread);
 		tw.start();
 	}
@@ -78,6 +82,7 @@ public class GUI {
 
 		public void run() {
 			while (true) {
+
 				try {
 					sleep(500);
 				} catch (InterruptedException e) {
@@ -86,8 +91,15 @@ public class GUI {
 				while (d.getRowCount() > 0)
 					d.removeRow(0);
 				for (String network : i.dudos.keySet()) {
+					JButton switcher;
+					switcher = new JButton("Switch on/off red light");
+					switcher.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+
+						}
+					});
 					d.addRow(new Object[] { network, i.dudos.get(network).peers.size(), i.dudos.get(network).redstate,
-							i.dudos.get(network).greenstate });
+							i.dudos.get(network).greenstate, switcher });
 				}
 
 			}

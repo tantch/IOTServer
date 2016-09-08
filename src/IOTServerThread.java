@@ -10,12 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IOTServerThread extends Thread {
 
 	public class Network {
-		public int redstate;
-		public int greenstate;
+		public Integer redstate;
+		public Integer greenstate;
 		public ArrayList<InetAddress> peers;
 
 		public Network(int state) {
-			this.redstate = state;
+			this.redstate = 1;
 			this.greenstate = 1;
 			peers = new ArrayList<>();
 		}
@@ -26,6 +26,7 @@ public class IOTServerThread extends Thread {
 	protected boolean cnt = true;
 
 	public ConcurrentHashMap<String, Network> dudos;
+	HashMap<InetAddress, String> invertdudos;
 
 	public IOTServerThread() throws IOException {
 		this("IOTServerThread");
@@ -40,6 +41,7 @@ public class IOTServerThread extends Thread {
 	public void run() {
 
 		dudos = new ConcurrentHashMap<>();
+		invertdudos = new HashMap<>();
 		System.out.println("running");
 		while (cnt) {
 			try {
@@ -62,8 +64,12 @@ public class IOTServerThread extends Thread {
 					else
 						dudos.get(message[0]).redstate = 0;
 				}
-				if (!dudos.get(message[0]).peers.contains(packet.getAddress()))
-					dudos.get(message[0]).peers.add(packet.getAddress());
+				if(invertdudos.containsKey(packet.getAddress())){
+					dudos.get(invertdudos.get(packet.getAddress())).peers.remove(packet.getAddress());
+				}
+				invertdudos.put(packet.getAddress(), message[0]);
+
+				dudos.get(message[0]).peers.add(packet.getAddress());
 				for (InetAddress peer : dudos.get(message[0]).peers) {
 					byte[] buf2 = ("" + dudos.get(message[0]).redstate).getBytes();
 					DatagramPacket out = new DatagramPacket(buf2, buf2.length, peer, 4000);
